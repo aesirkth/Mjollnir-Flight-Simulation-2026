@@ -6,6 +6,7 @@ end
 mapping = [
     % Thrust chamber
     component("AB01Thrustchamber.BBF02Precombustionchambercover", 0.441737)
+    component("AB01Thrustchamber.BBC00MFuelgrainwithcylindricalinitialport.BBC00MFuelgrainwithcylindricalinitialport3", 4.15783) % Fuel grain
     component("AB01Thrustchamber.AB04NozzleandPCC.BBK03PCCinletgraphiteinsert", 0.372)
     component("AB01Thrustchamber.AB04NozzleandPCC.BBK04PCCLid", 1.493475)
     component("AB01Thrustchamber.AB04NozzleandPCC.BBK05Nozzle", 1.696256)
@@ -15,6 +16,7 @@ mapping = [
     component("AB01Thrustchamber.AB04NozzleandPCC.IBO01275x1387", 0)
     component("AB01Thrustchamber.AB04NozzleandPCC.IBO01275x13872", 0)
     component("AB01Thrustchamber.AB05InjectorV2.BBA05InjectorCasingV2", 0.874649)
+    
 
     % 8 x M6 hex 25mm InUes screw
     component("AB01Thrustchamber.AB05InjectorV2.IBB01M6Hex25mmInUes", 0.007483)
@@ -76,7 +78,7 @@ mapping = [
     % Kastrullen
     component("AB07MainValve.BBI07SensorBracket", 0) % missing from excel
     component("AB06KastrullenSplitter.IBD03X10N2OSolenoid", 0) % missing from excel
-    component("AB06KastrullenSplitter.IBC00M304100000601KPGpressuretransducer9", 0) % missing from excel
+    component("AB06KastrullenSplitter.IBC00M304100000601KPGpressuretransducer9", 0.079) % missing from excel
     
     % 4 x Thrust strut
     component("BBE00Thruststrut", 0.143647)
@@ -218,20 +220,22 @@ mapping = [
 
 
     % Oxidiser tank
-    component("AB03Oxidisertankv2.BBD03Oxidisertanktop", 0) % missing from excel
-    component("AB03Oxidisertankv2.BBD04Oxidisertankpipe", 0) % missing from excel
-    component("AB03Oxidisertankv2.BBD08Tankbottom", 0) % missing from excel
-    component("AB03Oxidisertankv2.BBD09Flangekastrullenconnector", 0) % missing from excel
-    component("AB03Oxidisertankv2.BBE14Kastrullentopcap", 0) % missing from excel
+    component("AB03Oxidisertankv2", 18.8) % Weighed total mass
+
+    % component("AB03Oxidisertankv2.BBD03Oxidisertanktop", 0) % missing from excel
+    % component("AB03Oxidisertankv2.BBD04Oxidisertankpipe", 0) % missing from excel
+    % component("AB03Oxidisertankv2.BBD08Tankbottom", 0) % missing from excel
+    % component("AB03Oxidisertankv2.BBD09Flangekastrullenconnector", 0) % missing from excel
+    % component("AB03Oxidisertankv2.BBE14Kastrullentopcap", 0) % missing from excel
     % IBS25: 8 x M8x20 Low Profile Socket Head Screw - missing from excel
     % IBS28: 8 x M6x15 screw - missing from excel
     % IBS35: 64 x M6x18 countersunk DIN7991 screw - missing from excel
 
-    component("AB03Oxidisertankv2.IBC00M304100000601KPGpressuretransducer13", 0.098217)
-    component("AB03Oxidisertankv2.IBC00M304100000601KPGpressuretransducer17", 0.098217)
-    component("AB03Oxidisertankv2.BBJ00Liquidlevelprobe", 0.020252)
-    component("AB03Oxidisertankv2.BBJ01Liquidlevelprobebolt", 0.004085)
-    component("AB03Oxidisertankv2.IBC06M8x40AESIRtemperaturesensor2", 0.02257)
+    % component("AB03Oxidisertankv2.IBC00M304100000601KPGpressuretransducer13", 0.098217)
+    % component("AB03Oxidisertankv2.IBC00M304100000601KPGpressuretransducer17", 0.098217)
+    % component("AB03Oxidisertankv2.BBJ00Liquidlevelprobe", 0.020252)
+    % component("AB03Oxidisertankv2.BBJ01Liquidlevelprobebolt", 0.004085)
+    % component("AB03Oxidisertankv2.IBC06M8x40AESIRtemperaturesensor2", 0.02257)
 
 
 
