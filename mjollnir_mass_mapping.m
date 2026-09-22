@@ -202,7 +202,7 @@ mapping = [
     component("AB06KastrullenSplitter.BBE0514BSPThreadedTube2", 0.012002)
 
     component("AB06KastrullenSplitter.IBD00QuickDisconnectMale", 0.08593)
-    component("AB06KastrullenSplitter.IBD05FestoSolenoidVZWDLM22CMG1415V1P485R1V2", 2 * 0.409276) % Double mass to compensate for missing part in cad
+    component("AB06KastrullenSplitter.IBD05FestoSolenoidVZWDLM22CMG1415V1P485R1V2", 0.409276)
     component("AB06KastrullenSplitter.BBE0618BSPThreadedTube", 0.010153)
     component("AB06KastrullenSplitter.IBD02M54mmInjector", 0.005791)
     component("AB06KastrullenSplitter.BBE078x1mmtoM5Adapter", 0.006002)
