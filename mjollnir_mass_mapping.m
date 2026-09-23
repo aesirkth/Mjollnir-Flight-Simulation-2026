@@ -6,7 +6,7 @@ end
 mapping = [
     % Thrust chamber
     component("AB01Thrustchamber.BBF02Precombustionchambercover", 0.441737)
-    component("AB01Thrustchamber.BBC00MFuelgrainwithcylindricalinitialport.BBC00MFuelgrainwithcylindricalinitialport3", 4.15783) % Fuel grain
+    component("AB01Thrustchamber.BBC00MFuelgrainwithcylindricalinitialport.BBC00MFuelgrainwithcylindricalinitialport3", 0) % Fuel grain
     component("AB01Thrustchamber.AB04NozzleandPCC.BBK03PCCinletgraphiteinsert", 0.372)
     component("AB01Thrustchamber.AB04NozzleandPCC.BBK04PCCLid", 1.493475)
     component("AB01Thrustchamber.AB04NozzleandPCC.BBK05Nozzle", 1.696256)
@@ -378,6 +378,14 @@ mass_geometry = base_update_center_of_mass(mass_geometry, true);
 mass_geometry = base_update_center_of_mass(mass_geometry, false);
 rocket.mjollnir_dry_mass = mass_geometry.mass_summed;
 rocket.mjollnir_dry_cg = mass_geometry.center_of_mass_summed;
+
+fuel_grain_fields = cellstr(split("AB01Thrustchamber.BBC00MFuelgrainwithcylindricalinitialport.BBC00MFuelgrainwithcylindricalinitialport3", '.'));
+fuel_grain = getfield(mass_geometry, fuel_grain_fields{:});
+rocket.mjollnir_fuelgrain_position = fuel_grain.position;
+
+oxidizer_fields = cellstr(split("AB03Oxidisertankv2", '.'));
+oxidizer = getfield(mass_geometry, oxidizer_fields{:});
+rocket.mjollnir_oxidizer_position = oxidizer.position;
 
 disp(mass_geometry.mass_summed)
 disp(mass_geometry.center_of_mass_summed)
