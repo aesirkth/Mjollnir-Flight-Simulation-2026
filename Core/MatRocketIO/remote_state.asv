@@ -1,0 +1,72 @@
+classdef remote_state < handle
+    properties(Hidden)
+    
+    
+        state_remote
+        state_local
+    
+    end
+    properties
+        
+        key
+        node
+    
+    end
+    methods(Hidden)
+    
+        function state_update(self,args)
+            if jsondecode(args).key == self.key
+                self.state_local = struct_append(self.state_local, jsondecode(args).state);
+            end
+        end
+    
+    
+    end
+    methods
+
+    
+        function self = remote_state(args)
+            arguments
+                args.node = matrocket_server();
+                args.key = "rocket";
+    
+            end
+            
+            self.key = args.key;
+            self.node = args.node;
+            self.state_local = struct()
+            self.node.register_parse_method("state_update", @self.state_update)
+    
+    
+        end
+    
+        function state = sync_local(self, state)
+            arguments
+                self
+                state = struct();
+            end
+            self.node.read()
+            state = struct_append(state, self.state_local);
+        end
+    
+        function sync_remote(self, state)
+            state
+            delta = struct_difference(self.state_remote, state);
+            self.state_remote = state;
+        
+            message = struct; 
+            message.method = "state_update"; 
+            message.args = struct; 
+            message.args.key = self.key; 
+            message.args.state = jsonencode(delta);
+        
+            self.node.queue_message(message);
+            self.node.write()
+        
+        end
+    
+    
+    end
+end
+    
+   

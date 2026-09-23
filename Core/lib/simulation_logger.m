@@ -1,0 +1,175 @@
+function output = simulation_logger(instance)
+% simulation_logger is meant to run in two different modes depending on if
+% it's in the simulation loop or not. It is the main simulation logger, and
+% keeps track of the simulation state by using persistent variables. That
+% way, when the ode-solver is done and the simulation scope is cleaned up
+% by MATLAB, the simulation_logger scope is still untouched, allowing us
+% to extract the simulation data.
+% _______________________________________________________
+% Simulation-logging mode: simulation_logger(instance)
+% Adds instance to the historian-object
+% _______________________________________________________
+% Query/extraction mode: historian = simulation_logger()
+% Extracts the historian object the simulation_logger function has built
+% over the simulation
+
+
+persistent init
+persistent historian
+persistent max_index
+persistent history_index
+persistent historian_address_lookup
+
+%% Init
+if isempty(init)
+max_index = 10000;
+[historian, historian_address_lookup] = create_historian(instance, max_index);
+history_index = 1;
+record_history();
+
+init = false;
+end
+
+%% Simulation-logging-mode
+if exist("instance", "var")
+
+history_index = history_index +1;
+
+% Logic to get around the fact that MATLAB's ODE-solvers often go back in
+% time, which causes trouble for our interpolators later on in
+% query_historian. This is to ensure the historian.t is strictly increasing
+while instance.t <= historian.t(history_index-1) && history_index > 2
+history_index = history_index -1;
+end
+
+% Pre-allocation
+if history_index >= max_index
+    max_index     = max_index     +10000;
+    history_index = history_index +10000;
+    record_history();
+    history_index = history_index -10000;
+end
+
+record_history();
+
+end
+
+
+%% Query-mode
+if nargout > 0
+    output = trim_historian(2:history_index-2);
+end
+
+
+
+function record_history()
+    
+    
+    for i = 1:numel(historian_address_lookup)
+        address                    = historian_address_lookup{i};
+        dimensions                 = size(getfield(historian, address{:}));
+        array_address              = repmat({':'}, 1, numel(dimensions));
+        array_address{end}         = history_index;
+        subs_inputs                = cell(1,numel(address)*2+2);
+        subs_inputs(2:2:end-2)     = address;
+        subs_inputs(1:2:end-3)     = {"."};
+        subs_inputs(end-1)         = {"()"};
+        subs_inputs(end)           = {array_address};
+
+        S                          = substruct(subs_inputs{:});
+        historian                  = subsasgn(historian,S, getfield(instance, address{:}));
+    end
+
+end
+
+
+function output = trim_historian(range)
+    
+    output = historian;
+
+    for i = 1:numel(historian_address_lookup)
+        address                    = historian_address_lookup{i};
+        property                   = getfield(historian, address{:});
+        dimensions                 = size(property);
+        array_address              = repmat({':'}, 1, numel(dimensions)-1);
+        array_address{end+1}       = range;
+        output = setfield(output, address{:}, property(array_address{:}));
+    end
+
+end
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+function [historian, historian_address_lookup] = create_historian(instance,history_length)
+
+    
+    historian                = struct();
+    historian_address_lookup = {};
+    array_types              = ["double", "logical"];
+    
+    create_historian_internal()
+    
+    function create_historian_internal(address)
+    
+        if exist("address", "var"); property_names = fieldnames(getfield(instance, address{:}));
+        else;                       property_names = fieldnames(instance);
+        end
+    
+        for i = 1:numel(property_names)
+            property_name    = property_names{i};
+            if exist("address", "var"); property         = getfield(instance, address{:}, property_name);
+            else;                       property         = instance.(property_name);
+            end
+    
+            if exist("address", "var"); property_address = [address(:)', {property_name}]; 
+            else;                       property_address = {property_name}; 
+            end
+    
+            property_type = class(property);
+            
+            if isequal(property_type, "struct")
+            
+                historian = setfield(historian, property_address{:}, struct());
+                create_historian_internal(property_address);
+    
+            elseif ismember(property_type, array_types)
+    
+                property_dimensions = [size(property), history_length];
+                historian = setfield(historian, property_address{:}, NaN(property_dimensions));
+                historian_address_lookup{end+1} = property_address;
+    
+            elseif isequal(property_type, "string")
+            
+                historian = setfield(historian, property_address{:}, property);
+    
+            end
+    
+        end
+
+
+
+    end
+
+
+end
+
+
+
+
+
+
+
+   
+
+

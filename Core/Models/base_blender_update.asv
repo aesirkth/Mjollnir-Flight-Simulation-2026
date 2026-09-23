@@ -1,0 +1,113 @@
+function rocket = base_blender_update(rocket, declare_dependencies)
+
+    persistent init
+    persistent sim2com
+    persistent com2sim
+    persistent frame
+    persistent framerate
+    persistent cleanupobj
+    persistent workerfuture
+
+    if declare_dependencies
+    
+        if ~isfield(rocket, "blender_info"); rocket.blender_info = struct(); end
+        rocket.blender_info.blender_file          = 'untitled.blend';
+        rocket.blender_info.matrocketserver_name  = 'MatRocket';
+        rocket.blender_info.blender_executable    = 'C:\Program Files\Blender Foundation\Blender 3.6\blender.exe';
+        rocket.blender_info.target_object         = 'rocket';
+        rocket.blender_info.render_each           = true;
+        rocket.blender_info.blenderclientpath     = replace(mfilename("fullpath"), "Models\base_blender_update", "MatRocketIO\matrocket_blenderclient.py");
+    
+    else
+     
+        if isempty(init)
+            sim2com    = parallel.pool.PollableDataQueue(Destination="any");
+            com2sim    = parallel.pool.PollableDataQueue(Destination="any");
+            cleanupobj = onCleanup(@()shutdownWorkers());
+            gcp();
+            
+            workerfuture = parfeval(@()iothread(rocket.blender_info, sim2com, com2sim) ,0);
+            send(sim2com, rocket)
+            threadstate = "not ready";
+            while ~isequal(threadstate, "ready"); threadstate = poll(com2sim);if ~isempty(threadstate); disp(threadstate); end; end
+            send(sim2com, rocket)
+            frame = 1;
+            framerate = 30;
+
+            init = false;
+            
+        end
+
+        if randi(4) == 1
+            threadstate = poll(com2sim);
+    
+            newframe = round(rocket.t*framerate);
+            if isequal(threadstate, "ready") && frame ~= newframe
+                frame = newframe;
+                send(sim2com, rocket)
+            elseif ~isempty(threadstate)
+                disp(threadstate)
+    
+            end
+        end
+    end
+   
+    function shutdownWorkers()
+    try
+        send(sim2com, "stop");
+        wait(workerfuture, 5);
+        cancel(workerfuture);
+    catch
+    end
+end
+
+end
+    
+    
+    function iothread(blender_info, sim2com, com2sim)
+            
+            try
+            
+                addpath(genpath(replace(string(mfilename("fullpath")), "\base_blender_update", "")));
+                delete(tcpserverfind)
+                blender_state = remote_state();
+                system(['"' ,char(blender_info.blender_executable),'"  "', char(blender_info.blender_file),'"', ' --python "',char(blender_info.blenderclientpath),'"&'])
+                cleanupObj = onCleanup(@() blender_state.node.delete());
+                status = struct("status", "not ready");
+                while isequal(string(status.status), "not ready"); status = blender_state.sync_local(status); end
+                pause(3)
+
+                while true
+                    status = blender_state.sync_local(status);
+                    send(com2sim, status)
+                    [data, isdata] = poll(sim2com);
+                    if isdata && isequal(data, "stop")
+                        blender_state.node.delete();
+                        break
+                    elseif isdata && isstruct(data) && (isequal(string(status.status),"ready")  || blender_info.render_each)
+                        local_state = struct();
+                        local_state.(blender_info.target_object) = data;
+                        blender_state.sync_remote(local_state);
+                    else
+                        send(com2sim, "ready")
+                    end
+    
+    
+                end
+    
+                blender_state.node.delete();
+
+                [warnMsg, warnId] = lastwarn;
+                if ~isempty(warnMsg)
+                    send(com2sim, warnMsg)
+                end
+
+            catch ME
+                send(com2sim, ME.message)
+            end
+
+
+
+            
+        end
+    
