@@ -37,8 +37,22 @@ plot(t, total_mass);
 title("Total mass");
 
 % Center of mass
-center_of_mass = reshape(results.center_of_mass_summed(3, :), 1, []);
+center_of_masses = vecnorm(results.center_of_mass_summed, 2, 1);
 
 nexttile
-plot(t, center_of_mass);
+plot(t, center_of_masses);
 title("Center of mass, z")
+
+% Thrust
+thrust = vecnorm(results.engine.forces.thrust.vector, 2, 1);
+
+nexttile
+plot(t, thrust)
+title("Thrust")
+
+% Pressure_coefficient
+pressure_coefficient = results.aerodynamics.pressure_coefficient;
+
+nexttile
+plot(t, pressure_coefficient)
+title("Pressure coefficient")
