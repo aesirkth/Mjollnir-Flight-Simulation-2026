@@ -73,7 +73,8 @@ function rocket = base_atmosphere_from_dataset_model(rocket, declare_dependencie
         rocket.atmosphere.temperature    = temperature    (rocket.position(3));
         rocket.atmosphere.density        = density        (rocket.position(3));
         rocket.atmosphere.speed_of_sound = speed_of_sound (rocket.position(3));
-        rocket.atmosphere.wind_velocity  = wind_velocity  (rocket.position(3));
+        %rocket.atmosphere.wind_velocity  = wind_velocity  (rocket.position(3));
+        rocket.atmosphere.wind_velocity  = [0; 0; 0];
     
     
     end

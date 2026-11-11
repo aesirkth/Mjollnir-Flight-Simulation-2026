@@ -28,14 +28,18 @@ function rocket = mjollnir_propulsion_model(rocket, declare_dependencies)
         rocket.engine.fuel_grain.position = rocket.mjollnir_fuelgrain_position;
 
     else
-        rocket.engine.oxidizer.mass = rocket.N20_massT(rocket.t);
-        rocket.engine.fuel_grain.mass = rocket.Paraffin_massT(rocket.t);
 
         if rocket.t < rocket.engine.burn_time 
+            rocket.engine.oxidizer.mass = rocket.N20_massT(rocket.t);
+            rocket.engine.fuel_grain.mass = rocket.Paraffin_massT(rocket.t);
+
             rocket.engine.forces.thrust = force_vector([0;0;1]*rocket.thrustT(rocket.t), [0;0;0]); 
             rocket.engine.active_burn = true;
 
         else                      
+            rocket.engine.oxidizer.mass = 0.359825388874735;
+            rocket.engine.fuel_grain.mass = 0.085940249428969;
+            
             rocket.engine.forces.thrust = force_vector([0;0;0], [0;0;0]); 
             rocket.engine.active_burn = false;
         end
