@@ -1,6 +1,7 @@
 %% Setup
 project_root = fileparts(mfilename('fullpath'));
 addpath(genpath(fullfile(project_root, 'Core')));
+addpath(genpath(fullfile(project_root, 'RocketSource/Mjollnir')));
 
 geometry_config = load(fullfile(project_root, 'geometry_config.mat'), ...
     'rocket_default_values');
@@ -16,8 +17,8 @@ CAD = struct();
 rocket_prebaked.models = { ...
     @mjollnir_mass_mapping, ...
     @base_atmosphere_from_dataset_model, ...
-    @base_drag_coefficient_model, ...
     @base_aerodynamics_model, ...
+    @base_drag_coefficient_model, ...
     @mjollnir_propulsion_model, ...
     @base_gravity_model, ...
     @base_dual_deploy_parachute_model, ...
@@ -50,13 +51,17 @@ plots
 function [obj, mesh_directories] = use_mesh_filenames(obj)
     mesh_directories = strings(0,1);
     if isfield(obj, 'mesh')
-        [found, attributes] = fileattrib(obj.mesh);
-        if ~found
-            error('MatRocket:MeshFileNotFound', 'Mesh file not found: %s', obj.mesh);
+        [~, name, extension] = fileparts(string(obj.mesh));
+        filename = name + extension;
+
+        % Letar upp filen var den än ligger i projektmappen
+        matches = dir(fullfile(pwd, '**', filename));
+        if isempty(matches)
+            error('MatRocket:MeshFileNotFound', 'Hittade inte STL-filen någonstans i projektet: %s', filename);
         end
-        [folder, name, extension] = fileparts(string(attributes.Name));
-        obj.mesh = name + extension;
-        mesh_directories(end+1,1) = folder;
+
+        obj.mesh = filename;
+        mesh_directories(end+1,1) = string(matches(1).folder);
     end
     child_names = fieldnames(obj);
     for child_index = 1:numel(child_names)

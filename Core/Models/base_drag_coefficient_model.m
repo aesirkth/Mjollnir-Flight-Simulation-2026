@@ -12,6 +12,10 @@ if ~isfield(rocket, "aerodynamics"); rocket.aerodynamics = struct(); end
 rocket.atmosphere.speed_of_sound = 345;
 rocket.atmosphere.wind_velocity  = [0;0;0];
 
+%scaling factor for drag, allows for changing it manually without breaking
+%the simulation
+rocket.aerodynamics.drag_multiplier = 1.0;
+
 rocket.aerodynamics.pressure_coefficient = [1;1;1];
 rocket.wind_velocity_absolute = [0;0;0];
 
@@ -22,7 +26,10 @@ else
 
 altitude = rocket.position(3);
 mach = norm(rocket.velocity - rocket.atmosphere.wind_velocity)/rocket.atmosphere.speed_of_sound;
-rocket.aerodynamics.pressure_coefficient(3) = rocket.aerodynamics.pressure_coefficient(3) * drag_coefficient(altitude, mach);
+
+% base_aerodynamics_model sums two orthogonal area moments (Fd = (1/2 + 1/2) * rho * Cp * v^2 * A)
+% need to divide by 2 here to get the correct formula for the pressure_coefficient
+rocket.aerodynamics.pressure_coefficient(3) = 0.5 * rocket.aerodynamics.drag_multiplier * drag_coefficient(altitude, mach);
 
 end
 end
