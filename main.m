@@ -1,7 +1,11 @@
 %% Setup
 project_root = fileparts(mfilename('fullpath'));
+if isempty(project_root) || contains(project_root, 'Temp')
+    project_root = pwd;
+end
+
 addpath(genpath(fullfile(project_root, 'Core')));
-addpath(genpath(fullfile(project_root, 'RocketSource/Mjollnir')));
+addpath(genpath(fullfile(project_root, 'RocketSource/AM_00 Mjollnir Full CAD')));
 
 geometry_config = load(fullfile(project_root, 'geometry_config.mat'), ...
     'rocket_default_values');
